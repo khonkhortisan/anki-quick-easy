@@ -31,7 +31,10 @@ from aqt.reviewer import Reviewer
 
 
 # Edit this line to adjust how quickly you must reveal the answer
-EASY_SECONDS = 1.0
+EASY_SECONDS = 5.0
+HARD_SECONDS = 30.0
+# make this equal to "Ignore answer times longer than"
+AGAIN_SECONDS = 60.0
 
 
 def my_defaultEase(self):
@@ -40,6 +43,14 @@ def my_defaultEase(self):
     if self.hadCardQueue:
         # card came from the undo queue
         return ease
+
+    if AGAIN_SECONDS * 1000 <= self.card.timeTaken():
+        # wasn't answered
+        return 1
+
+    if HARD_SECONDS * 1000 <= self.card.timeTaken():
+        # was answered slowly
+        return max(ease - 1, 2)
 
     if EASY_SECONDS * 1000 <= self.card.timeTaken():
         # wasn't answered quickly
